@@ -23,17 +23,14 @@ public class MainFrame {
 
         mainPanel = new MainPanel();
         mainPanel.setOpaque(true);
-        mainPanel.setBackground(new Color(0, 0, 0, 128));
+        mainPanel.setBackground(new Color(0, 0, 0, 128)); // Semi-transparent black background
 
         frame.setContentPane(mainPanel);
 
-        frame.setBackground(new Color(0, 0, 0, 0));
+        frame.setBackground(new Color(0, 0, 0, 0)); // Fully transparent background
         frame.setOpacity(0.85f);
 
         frame.setVisible(true);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(MainFrame::new);
-    }
 }
