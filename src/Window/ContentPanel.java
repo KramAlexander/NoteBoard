@@ -13,25 +13,28 @@ public class ContentPanel extends JPanel {
         this.setBackground(color);
         this.setLayout(new BorderLayout());
 
+        // Panel for heading and add button
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setOpaque(false);
+
         // Add heading label
         JLabel heading = new JLabel(title);
         heading.setForeground(Color.WHITE);
         heading.setFont(new Font("Arial", Font.BOLD, 24)); // Increase font size
         heading.setHorizontalAlignment(SwingConstants.CENTER);
         heading.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
-        this.add(heading, BorderLayout.NORTH);
-
-        // Create a container panel with a BoxLayout to center the item
-        container = new JPanel();
-        container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
-        container.setOpaque(false); // Make the container transparent
-        container.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Add padding
-
-        this.add(container, BorderLayout.CENTER);
+        topPanel.add(heading, BorderLayout.CENTER);
 
         // Add a button to create new items
-        JButton addButton = new JButton("Add Item");
-        addButton.setFont(new Font("Arial", Font.PLAIN, 16));
+        JButton addButton = new JButton("+");
+        addButton.setFont(new Font("Arial", Font.BOLD, 24));
+        addButton.setForeground(Color.WHITE);
+        addButton.setBackground(new Color(0, 0, 0, 150));
+        addButton.setOpaque(true);
+        addButton.setBorderPainted(false);
+        addButton.setFocusPainted(false);
+        addButton.setContentAreaFilled(false);
+        addButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -42,7 +45,22 @@ public class ContentPanel extends JPanel {
                 }
             }
         });
-        this.add(addButton, BorderLayout.SOUTH);
+
+        // Align button to the top-right corner
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.setOpaque(false);
+        buttonPanel.add(addButton);
+        topPanel.add(buttonPanel, BorderLayout.EAST);
+
+        this.add(topPanel, BorderLayout.NORTH);
+
+        // Create a container panel with a BoxLayout to center the item
+        container = new JPanel();
+        container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
+        container.setOpaque(false); // Make the container transparent
+        container.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Add padding
+
+        this.add(container, BorderLayout.CENTER);
 
         // Enable drop handling
         setTransferHandler(new ValueImportTransferHandler(this));
