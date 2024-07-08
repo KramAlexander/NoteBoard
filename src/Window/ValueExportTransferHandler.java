@@ -13,7 +13,7 @@ public class ValueExportTransferHandler extends TransferHandler {
 
     @Override
     protected Transferable createTransferable(JComponent c) {
-        return new ItemTransferable(item.getText(), item.getSourcePanel());
+        return new ItemTransferable(item.getText());
     }
 
     @Override
@@ -31,5 +31,29 @@ public class ValueExportTransferHandler extends TransferHandler {
                 parent.repaint();
             }
         }
+    }
+}
+
+// Custom Transferable class for transferring the item text
+class ItemTransferable implements Transferable {
+    private final String text;
+
+    public ItemTransferable(String text) {
+        this.text = text;
+    }
+
+    @Override
+    public DataFlavor[] getTransferDataFlavors() {
+        return new DataFlavor[]{DataFlavor.stringFlavor};
+    }
+
+    @Override
+    public boolean isDataFlavorSupported(DataFlavor flavor) {
+        return flavor.equals(DataFlavor.stringFlavor);
+    }
+
+    @Override
+    public Object getTransferData(DataFlavor flavor) {
+        return text;
     }
 }
