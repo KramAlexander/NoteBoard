@@ -8,8 +8,8 @@ import java.awt.event.MouseEvent;
 import java.io.Serializable;
 
 public class Item extends JPanel implements Serializable {
-
     private String text;
+    private ContentPanel sourcePanel; // Add this line
 
     public Item(String text) {
         this.text = text;
@@ -40,6 +40,13 @@ public class Item extends JPanel implements Serializable {
         // Enable dragging by mouse for the entire panel
         addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
+                JComponent parent = (JComponent) getParent();
+                while (parent != null && !(parent instanceof ContentPanel)) {
+                    parent = (JComponent) parent.getParent();
+                }
+                if (parent instanceof ContentPanel) {
+                    sourcePanel = (ContentPanel) parent;
+                }
                 getTransferHandler().exportAsDrag(Item.this, e, TransferHandler.MOVE);
             }
         });
@@ -47,6 +54,10 @@ public class Item extends JPanel implements Serializable {
 
     public String getText() {
         return text;
+    }
+
+    public ContentPanel getSourcePanel() {
+        return sourcePanel;
     }
 
     @Override

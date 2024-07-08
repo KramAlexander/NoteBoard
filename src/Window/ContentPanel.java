@@ -2,9 +2,6 @@ package Window;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class ContentPanel extends JPanel {
     private JPanel container;
@@ -35,14 +32,11 @@ public class ContentPanel extends JPanel {
         addButton.setFocusPainted(false);
         addButton.setContentAreaFilled(false);
         addButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        addButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Open dialog to enter item content
-                String content = JOptionPane.showInputDialog(ContentPanel.this, "Enter item content:", "New Item", JOptionPane.PLAIN_MESSAGE);
-                if (content != null && !content.trim().isEmpty()) {
-                    addItem(new Item(content));
-                }
+        addButton.addActionListener(e -> {
+            // Open dialog to enter item content
+            String content = JOptionPane.showInputDialog(ContentPanel.this, "Enter item content:", "New Item", JOptionPane.PLAIN_MESSAGE);
+            if (content != null && !content.trim().isEmpty()) {
+                addItem(new Item(content));
             }
         });
 
@@ -77,35 +71,5 @@ public class ContentPanel extends JPanel {
 
     public JPanel getContainer() {
         return container;
-    }
-}
-
-// Custom TransferHandler to handle import
-class ValueImportTransferHandler extends TransferHandler {
-    private ContentPanel contentPanel;
-
-    public ValueImportTransferHandler(ContentPanel contentPanel) {
-        this.contentPanel = contentPanel;
-    }
-
-    @Override
-    public boolean canImport(TransferSupport support) {
-        return support.isDataFlavorSupported(DataFlavor.stringFlavor);
-    }
-
-    @Override
-    public boolean importData(TransferSupport support) {
-        if (!canImport(support)) {
-            return false;
-        }
-
-        try {
-            String text = (String) support.getTransferable().getTransferData(DataFlavor.stringFlavor);
-            contentPanel.addItem(new Item(text));
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
     }
 }
