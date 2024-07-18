@@ -8,7 +8,6 @@ import java.awt.event.MouseEvent;
 import java.io.Serializable;
 
 public class Item extends JPanel implements Serializable {
-
     private String text;
 
     public Item(String text) {
@@ -30,7 +29,7 @@ public class Item extends JPanel implements Serializable {
         this.add(Box.createRigidArea(new Dimension(0, 10))); // Add spacing at the top
         this.add(textArea);
         this.add(Box.createRigidArea(new Dimension(0, 10))); // Add spacing at the bottom
-
+        this.add(Box.createVerticalGlue());
         // Create a custom border with rounded corners
         setBorder(new RoundedBorder(15)); // 15 is the radius of the corners
 

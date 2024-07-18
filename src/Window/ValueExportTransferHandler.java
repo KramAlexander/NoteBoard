@@ -25,10 +25,11 @@ public class ValueExportTransferHandler extends TransferHandler {
     public void exportDone(JComponent source, Transferable data, int action) {
         if (action == MOVE) {
             Container parent = item.getParent();
-            if (parent != null) {
-                parent.remove(item);
-                parent.revalidate();
-                parent.repaint();
+            if (parent instanceof JPanel) {
+                ContentPanel contentPanel = (ContentPanel) SwingUtilities.getAncestorOfClass(ContentPanel.class, parent);
+                if (contentPanel != null) {
+                    contentPanel.removeItem(item);
+                }
             }
         }
     }

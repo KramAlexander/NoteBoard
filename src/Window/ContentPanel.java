@@ -67,10 +67,19 @@ public class ContentPanel extends JPanel {
     }
 
     public void addItem(Item item) {
-        if (container.getComponentCount() > 0) {
-            container.add(Box.createRigidArea(new Dimension(0, 10)), 0); // Add space between items
+        // Add consistent spacing before the item
+        container.add(Box.createRigidArea(new Dimension(0, 10)));
+        container.add(item);
+        container.revalidate();
+        container.repaint();
+    }
+
+    public void removeItem(Item item) {
+        int index = container.getComponentZOrder(item);
+        if (index > 0 && container.getComponent(index - 1) instanceof Box.Filler) {
+            container.remove(index - 1); // Remove the space before the item
         }
-        container.add(item, 0);
+        container.remove(item);
         container.revalidate();
         container.repaint();
     }
@@ -82,7 +91,7 @@ public class ContentPanel extends JPanel {
 
 // Custom TransferHandler to handle import
 class ValueImportTransferHandler extends TransferHandler {
-    private ContentPanel contentPanel;
+    private final ContentPanel contentPanel;
 
     public ValueImportTransferHandler(ContentPanel contentPanel) {
         this.contentPanel = contentPanel;
@@ -103,7 +112,6 @@ class ValueImportTransferHandler extends TransferHandler {
             String text = (String) support.getTransferable().getTransferData(DataFlavor.stringFlavor);
             contentPanel.addItem(new Item(text));
             return true;
-
         } catch (Exception e) {
             e.printStackTrace();
         }
