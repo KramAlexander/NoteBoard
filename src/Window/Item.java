@@ -3,33 +3,84 @@ package Window;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.Serializable;
 
 public class Item extends JPanel implements Serializable {
     private String text;
+    private int priority;
+    private JTextArea textArea;
 
-    public Item(String text) {
+    public Item(String text, String editIconPath, String deleteIconPath) {
         this.text = text;
-        this.setOpaque(true); // Make the panel itself opaque
-        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        this.setBackground(new Color(50, 50, 50, 200)); // More solid black
+        this.priority = 3; // Default priority is Medium (3)
 
-        JTextArea textArea = new JTextArea(text);
+        setOpaque(true);
+        setLayout(new BorderLayout());
+        setBackground(new Color(50, 50, 50, 200)); // More solid black
+
+        // Priority indicator
+        JPanel priorityIndicator = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.setColor(Settings.getPriorityColor(priority));
+                g.fillOval(0, 0, getWidth(), getHeight());
+            }
+        };
+        priorityIndicator.setPreferredSize(new Dimension(10, 10)); // Smaller priority indicator
+
+        // Text area
+        textArea = new JTextArea(text);
         textArea.setWrapStyleWord(true);
         textArea.setLineWrap(true);
         textArea.setOpaque(false);
         textArea.setEditable(false);
         textArea.setFocusable(false);
         textArea.setForeground(Color.WHITE); // Ensure the text is visible on a dark background
-        textArea.setAlignmentX(Component.CENTER_ALIGNMENT); // Center align the text area
         textArea.setFont(new Font("Arial", Font.PLAIN, 16)); // Set bigger font size
 
-        this.add(Box.createRigidArea(new Dimension(0, 10))); // Add spacing at the top
-        this.add(textArea);
-        this.add(Box.createRigidArea(new Dimension(0, 10))); // Add spacing at the bottom
-        this.add(Box.createVerticalGlue());
+        // Buttons panel
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonsPanel.setOpaque(false);
+
+        JButton editButton = new JButton(Settings.getIcon(editIconPath));
+        editButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                editItem();
+            }
+        });
+        buttonsPanel.add(editButton);
+
+        JButton deleteButton = new JButton(Settings.getIcon(deleteIconPath));
+        deleteButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int result = JOptionPane.showConfirmDialog(Item.this, "Are you sure?", "Delete Item", JOptionPane.YES_NO_OPTION);
+                if (result == JOptionPane.YES_OPTION) {
+                    Container parent = getParent();
+                    if (parent != null) {
+                        parent.remove(Item.this);
+                        parent.revalidate();
+                        parent.repaint();
+                    }
+                }
+            }
+        });
+        buttonsPanel.add(deleteButton);
+
+        JPanel textPanel = new JPanel(new BorderLayout());
+        textPanel.setOpaque(false);
+        textPanel.add(priorityIndicator, BorderLayout.WEST);
+        textPanel.add(textArea, BorderLayout.CENTER);
+
+        add(textPanel, BorderLayout.CENTER);
+        add(buttonsPanel, BorderLayout.EAST);
+
         // Create a custom border with rounded corners
         setBorder(new RoundedBorder(15)); // 15 is the radius of the corners
 
@@ -37,15 +88,62 @@ public class Item extends JPanel implements Serializable {
         setTransferHandler(new ValueExportTransferHandler(this));
 
         // Enable dragging by mouse for the entire panel
-        addMouseListener(new MouseAdapter() {
+        MouseAdapter dragAdapter = new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
-                getTransferHandler().exportAsDrag(Item.this, e, TransferHandler.MOVE);
+                JComponent component = (JComponent) e.getSource();
+                TransferHandler handler = component.getTransferHandler();
+                handler.exportAsDrag(component, e, TransferHandler.MOVE);
             }
-        });
+
+            public void mouseDragged(MouseEvent e) {
+                JComponent component = (JComponent) e.getSource();
+                TransferHandler handler = component.getTransferHandler();
+                handler.exportAsDrag(component, e, TransferHandler.MOVE);
+            }
+        };
+
+        addMouseListener(dragAdapter);
+        addMouseMotionListener(dragAdapter);
+        textArea.addMouseListener(dragAdapter);
+        textArea.addMouseMotionListener(dragAdapter);
     }
 
     public String getText() {
         return text;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+        textArea.setText(text);
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
+
+    private void editItem() {
+        JTextField textField = new JTextField(text);
+        Integer[] priorities = {1, 2, 3, 4, 5};
+        JComboBox<Integer> priorityBox = new JComboBox<>(priorities);
+        priorityBox.setSelectedItem(priority);
+
+        JPanel panel = new JPanel(new GridLayout(2, 2));
+        panel.add(new JLabel("Text:"));
+        panel.add(textField);
+        panel.add(new JLabel("Priority:"));
+        panel.add(priorityBox);
+
+        int result = JOptionPane.showConfirmDialog(this, panel, "Edit Item", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (result == JOptionPane.OK_OPTION) {
+            setText(textField.getText());
+            setPriority((Integer) priorityBox.getSelectedItem());
+            revalidate();
+            repaint();
+        }
     }
 
     @Override

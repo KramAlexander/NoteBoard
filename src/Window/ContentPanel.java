@@ -8,10 +8,14 @@ import java.awt.event.ActionListener;
 
 public class ContentPanel extends JPanel {
     private JPanel container;
+    String editIconPath;
+    String deleteIconPath;
 
-    public ContentPanel(String title, Color color) {
+    public ContentPanel(String title, Color color, String editIconPath, String deleteIconPath) {
         this.setBackground(color);
         this.setLayout(new BorderLayout());
+        this.editIconPath = editIconPath;
+        this.deleteIconPath = deleteIconPath;
 
         // Panel for heading and add button
         JPanel topPanel = new JPanel(new BorderLayout());
@@ -41,7 +45,7 @@ public class ContentPanel extends JPanel {
                 // Open dialog to enter item content
                 String content = JOptionPane.showInputDialog(ContentPanel.this, "Enter item content:", "New Item", JOptionPane.PLAIN_MESSAGE);
                 if (content != null && !content.trim().isEmpty()) {
-                    addItem(new Item(content));
+                    addItem(new Item(content, editIconPath, deleteIconPath));
                 }
             }
         });
@@ -110,7 +114,7 @@ class ValueImportTransferHandler extends TransferHandler {
 
         try {
             String text = (String) support.getTransferable().getTransferData(DataFlavor.stringFlavor);
-            contentPanel.addItem(new Item(text));
+            contentPanel.addItem(new Item(text, contentPanel.editIconPath, contentPanel.deleteIconPath));
             return true;
         } catch (Exception e) {
             e.printStackTrace();
