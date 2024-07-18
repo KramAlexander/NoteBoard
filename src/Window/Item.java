@@ -19,7 +19,7 @@ public class Item extends JPanel implements Serializable {
         this.priority = 3; // Default priority is Medium (3)
 
         setOpaque(true);
-        setLayout(new BorderLayout());
+        setLayout(new GridBagLayout()); // Use GridBagLayout
         setBackground(new Color(50, 50, 50, 200)); // More solid black
 
         // Priority indicator
@@ -42,12 +42,13 @@ public class Item extends JPanel implements Serializable {
         textArea.setFocusable(false);
         textArea.setForeground(Color.WHITE); // Ensure the text is visible on a dark background
         textArea.setFont(new Font("Arial", Font.PLAIN, 16)); // Set bigger font size
+        textArea.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5)); // Add some padding
 
         // Buttons panel
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonsPanel.setOpaque(false);
 
-        JButton editButton = new JButton(Settings.getIcon(editIconPath));
+        JButton editButton = createIconButton(editIconPath);
         editButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -56,7 +57,7 @@ public class Item extends JPanel implements Serializable {
         });
         buttonsPanel.add(editButton);
 
-        JButton deleteButton = new JButton(Settings.getIcon(deleteIconPath));
+        JButton deleteButton = createIconButton(deleteIconPath);
         deleteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -73,13 +74,30 @@ public class Item extends JPanel implements Serializable {
         });
         buttonsPanel.add(deleteButton);
 
-        JPanel textPanel = new JPanel(new BorderLayout());
-        textPanel.setOpaque(false);
-        textPanel.add(priorityIndicator, BorderLayout.WEST);
-        textPanel.add(textArea, BorderLayout.CENTER);
+        // Layout constraints
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.CENTER;
 
-        add(textPanel, BorderLayout.CENTER);
-        add(buttonsPanel, BorderLayout.EAST);
+        // Add priority indicator
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        add(priorityIndicator, gbc);
+
+        // Add text area
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.weightx = 1.0; // Allow horizontal expansion
+        gbc.anchor = GridBagConstraints.CENTER;
+        add(textArea, gbc);
+
+        // Add buttons panel
+        gbc.gridx = 2;
+        gbc.gridy = 0;
+        gbc.weightx = 0;
+        gbc.anchor = GridBagConstraints.EAST;
+        add(buttonsPanel, gbc);
 
         // Create a custom border with rounded corners
         setBorder(new RoundedBorder(15)); // 15 is the radius of the corners
@@ -106,6 +124,16 @@ public class Item extends JPanel implements Serializable {
         addMouseMotionListener(dragAdapter);
         textArea.addMouseListener(dragAdapter);
         textArea.addMouseMotionListener(dragAdapter);
+    }
+
+    private JButton createIconButton(String iconPath) {
+        ImageIcon icon = new ImageIcon(new ImageIcon(iconPath).getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH));
+        JButton button = new JButton(icon);
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false);
+        button.setFocusPainted(false);
+        button.setOpaque(false);
+        return button;
     }
 
     public String getText() {
