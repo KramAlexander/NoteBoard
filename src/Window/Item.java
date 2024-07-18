@@ -32,6 +32,7 @@ public class Item extends JPanel implements Serializable {
             }
         };
         priorityIndicator.setPreferredSize(new Dimension(10, 10)); // Smaller priority indicator
+        priorityIndicator.setOpaque(false); // Ensure the panel itself is transparent
 
         // Text area
         textArea = new JTextArea(text);
