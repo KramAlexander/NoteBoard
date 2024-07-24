@@ -13,7 +13,7 @@ public class ValueExportTransferHandler extends TransferHandler {
 
     @Override
     protected Transferable createTransferable(JComponent c) {
-        return new ItemTransferable(item.getText());
+        return new ItemTransferable(item.getText(), item.getPriority());
     }
 
     @Override
@@ -35,12 +35,14 @@ public class ValueExportTransferHandler extends TransferHandler {
     }
 }
 
-// Custom Transferable class for transferring the item text
+// Custom Transferable class for transferring the item text and priority
 class ItemTransferable implements Transferable {
     private final String text;
+    private final int priority;
 
-    public ItemTransferable(String text) {
+    public ItemTransferable(String text, int priority) {
         this.text = text;
+        this.priority = priority;
     }
 
     @Override
@@ -55,6 +57,7 @@ class ItemTransferable implements Transferable {
 
     @Override
     public Object getTransferData(DataFlavor flavor) {
-        return text;
+        return text + ";" + priority;
     }
 }
+

@@ -5,6 +5,8 @@ import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Comparator;
 
 public class ContentPanel extends JPanel {
     private JPanel container;
@@ -39,14 +41,11 @@ public class ContentPanel extends JPanel {
         addButton.setFocusPainted(false);
         addButton.setContentAreaFilled(false);
         addButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        addButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Open dialog to enter item content
-                String content = JOptionPane.showInputDialog(ContentPanel.this, "Enter item content:", "New Item", JOptionPane.PLAIN_MESSAGE);
-                if (content != null && !content.trim().isEmpty()) {
-                    addItem(new Item(content, editIconPath, deleteIconPath));
-                }
+        addButton.addActionListener(e -> {
+            // Open dialog to enter item content
+            String content = JOptionPane.showInputDialog(ContentPanel.this, "Enter item content:", "New Item", JOptionPane.PLAIN_MESSAGE);
+            if (content != null && !content.trim().isEmpty()) {
+                addItem(new Item(content, editIconPath, deleteIconPath));
             }
         });
 
@@ -71,9 +70,9 @@ public class ContentPanel extends JPanel {
     }
 
     public void addItem(Item item) {
-        // Add consistent spacing before the item
         container.add(Box.createRigidArea(new Dimension(0, 10)));
         container.add(item);
+        sortItemsByPriority();
         container.revalidate();
         container.repaint();
     }
@@ -84,6 +83,30 @@ public class ContentPanel extends JPanel {
             container.remove(index - 1); // Remove the space before the item
         }
         container.remove(item);
+        container.revalidate();
+        container.repaint();
+    }
+
+    void sortItemsByPriority() {
+        Component[] components = container.getComponents();
+        ArrayList<Item> items = new ArrayList<>();
+
+        for (Component component : components) {
+            if (component instanceof Item) {
+                items.add((Item) component);
+            }
+        }
+
+        // Sort items by priority in descending order
+        items.sort((item1, item2) -> Integer.compare(item2.getPriority(), item1.getPriority()));
+
+        container.removeAll();
+
+        for (Item item : items) {
+            container.add(Box.createRigidArea(new Dimension(0, 10)));
+            container.add(item);
+        }
+
         container.revalidate();
         container.repaint();
     }
@@ -113,8 +136,14 @@ class ValueImportTransferHandler extends TransferHandler {
         }
 
         try {
-            String text = (String) support.getTransferable().getTransferData(DataFlavor.stringFlavor);
-            contentPanel.addItem(new Item(text, contentPanel.editIconPath, contentPanel.deleteIconPath));
+            String data = (String) support.getTransferable().getTransferData(DataFlavor.stringFlavor);
+            String[] parts = data.split(";");
+            String text = parts[0];
+            int priority = Integer.parseInt(parts[1]);
+
+            Item newItem = new Item(text, contentPanel.editIconPath, contentPanel.deleteIconPath);
+            newItem.setPriority(priority);
+            contentPanel.addItem(newItem);
             return true;
         } catch (Exception e) {
             e.printStackTrace();

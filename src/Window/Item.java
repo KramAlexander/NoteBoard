@@ -50,25 +50,18 @@ public class Item extends JPanel implements Serializable {
         buttonsPanel.setOpaque(false);
 
         JButton editButton = createIconButton(editIconPath);
-        editButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                editItem();
-            }
-        });
+        editButton.addActionListener(e -> editItem());
         buttonsPanel.add(editButton);
 
         JButton deleteButton = createIconButton(deleteIconPath);
-        deleteButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int result = JOptionPane.showConfirmDialog(Item.this, "Are you sure?", "Delete Item", JOptionPane.YES_NO_OPTION);
-                if (result == JOptionPane.YES_OPTION) {
-                    Container parent = getParent();
-                    if (parent != null) {
-                        parent.remove(Item.this);
-                        parent.revalidate();
-                        parent.repaint();
+        deleteButton.addActionListener(e -> {
+            int result = JOptionPane.showConfirmDialog(Item.this, "Are you sure?", "Delete Item", JOptionPane.YES_NO_OPTION);
+            if (result == JOptionPane.YES_OPTION) {
+                Container parent = getParent();
+                if (parent != null) {
+                    ContentPanel contentPanel = (ContentPanel) SwingUtilities.getAncestorOfClass(ContentPanel.class, parent);
+                    if (contentPanel != null) {
+                        contentPanel.removeItem(Item.this);
                     }
                 }
             }
@@ -152,6 +145,15 @@ public class Item extends JPanel implements Serializable {
 
     public void setPriority(int priority) {
         this.priority = priority;
+        // Trigger repaint to update priority indicator color
+        repaint();
+        Container parent = getParent();
+        if (parent instanceof JPanel) {
+            ContentPanel contentPanel = (ContentPanel) SwingUtilities.getAncestorOfClass(ContentPanel.class, parent);
+            if (contentPanel != null) {
+                contentPanel.sortItemsByPriority();
+            }
+        }
     }
 
     private void editItem() {
