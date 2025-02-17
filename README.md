@@ -1,1 +1,1 @@
-This is a noteboard!
+This is a noteboard! :)
